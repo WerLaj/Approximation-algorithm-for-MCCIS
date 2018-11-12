@@ -143,8 +143,8 @@ namespace ApproximationAlgorithm
             subgraphVertices1 = new List<Vertex>();
             subgraphVertices2 = new List<Vertex>();
 
-            subgraphAdjacencyMatrix1 = new int[5, 5];
-            subgraphAdjacencyMatrix2 = new int[5, 5];
+            subgraphAdjacencyMatrix1 = new int[adjacencyMatrix1.GetLength(0), adjacencyMatrix1.GetLength(0)];
+            subgraphAdjacencyMatrix2 = new int[adjacencyMatrix2.GetLength(0), adjacencyMatrix2.GetLength(0)];
         }
 
         public static int findMaxDegreeForBothGraphs(Graph _g1, Graph _g2)
