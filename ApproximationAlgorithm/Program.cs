@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -58,74 +59,92 @@ namespace ApproximationAlgorithm
             Console.ReadKey();
         }
 
+
+        private static int[,] getMultidimFromJaggedArray(int[][] jaggedArray)
+        {
+            int size = jaggedArray[0].Length;
+            int[,] multidimArray = new int[size, size];
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    multidimArray[y, x] = jaggedArray[y][x];
+                }
+            }
+            return (multidimArray);
+        }
+
+        private static Boolean validateInputData(int[][] matrix)
+        {
+            int lastRowLen = -1;
+            int rowCount = 0;
+            foreach (int[] row in matrix)
+            {
+                if (lastRowLen != -1 && row.Length != lastRowLen)
+                {
+                    throw new Exception(String.Format("Uneven row lengths at row {0}!", rowCount.ToString()));
+                }
+
+                lastRowLen = row.Length;
+
+                if (rowCount >= lastRowLen)
+                {
+                    throw new Exception(String.Format("Row count exceeds array width at row {0}!", (rowCount).ToString()));
+                }
+
+                foreach (int cell in row)
+                {
+                    if (cell != 1 && cell != 0)
+                    {
+                        throw new Exception(String.Format("Values different than 0 or 1 in array at row {0}!", rowCount.ToString()));
+                    }
+                }
+                rowCount++;
+            }
+
+            return (true);
+        }
+
+        private static int[,] getGraphFromCsv(string filePath = "./test_graph.csv")
+        {
+            StreamReader sr = new StreamReader(filePath);
+            string[] stringSeparators = new string[] { ",", ";" };
+            var lines = new List<int[]>();
+            int row = 0;
+            while (!sr.EndOfStream)
+            {
+                string[] lineStr = sr.ReadLine().Split(stringSeparators, StringSplitOptions.None);
+
+                int[] lineInt = null;
+                try
+                {
+                    lineInt = Array.ConvertAll<string, int>(lineStr, s => Int32.Parse(s));
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception(string.Format("Bad input data at row {0}. Parsing to int error.", row.ToString()));
+                }
+                lines.Add(lineInt);
+                row++;
+            }
+
+            var data = lines.ToArray();
+            Boolean inputValid = validateInputData(data);
+
+            return (getMultidimFromJaggedArray(data));
+        }
+
         public static void graphsInititalization()
         {
-            //Example 1
-            size1 = 9;
-            adjacencyMatrix1 = new int[9, 9]
-            {
-                {1,1,0,0,1,0,0,0,0},
-                {1,1,1,0,1,0,0,0,0},
-                {0,1,1,1,0,0,0,0,0},
-                {0,0,1,1,1,0,0,0,0},
-                {1,1,0,1,1,1,0,0,0},
-                {0,0,0,0,1,1,1,0,1},
-                {0,0,0,0,0,1,1,1,1},
-                {0,0,0,0,0,0,1,1,1},
-                {0,0,0,0,0,1,1,1,1}
-            };
-            G1 = new Graph(size1, adjacencyMatrix1);
-
-            size2 = 9;
-            adjacencyMatrix2 = new int[9, 9]
-            {
-                {1,1,0,1,0,0,0,0,0},
-                {1,1,1,0,0,0,0,0,0},
-                {0,1,1,0,1,0,0,0,0},
-                {1,0,0,1,1,0,0,0,0},
-                {0,0,1,1,1,1,0,0,0},
-                {0,0,0,0,1,1,1,1,1},
-                {0,0,0,0,0,1,1,1,0},
-                {0,0,0,0,0,1,1,1,1},
-                {0,0,0,0,0,1,0,1,1}
-            };
-            G2 = new Graph(size2, adjacencyMatrix2);
-
+            adjacencyMatrix1 = getGraphFromCsv("C:/Users/werka/Desktop/Algorithms/test_graph1.csv");
+            adjacencyMatrix2 = getGraphFromCsv("C:/Users/werka/Desktop/Algorithms/test_graph2.csv");
+            G1 = new Graph(adjacencyMatrix1.GetLength(0), adjacencyMatrix1);
+            G2 = new Graph(adjacencyMatrix2.GetLength(0), adjacencyMatrix2);
             subgraphVertices1 = new List<Vertex>();
             subgraphVertices2 = new List<Vertex>();
 
-            subgraphAdjacencyMatrix1 = new int[9, 9];
-            subgraphAdjacencyMatrix2 = new int[9, 9];
-
-
-            //Example 2
-            //size1 = 5;
-            //adjacencyMatrix1 = new int[5, 5]
-            //{
-            //    {1,1,0,0,0},
-            //    {1,1,1,0,0},
-            //    {0,1,1,1,1},
-            //    {0,0,1,1,1},
-            //    {0,0,1,1,1},
-            //};
-            //G1 = new Graph(size1, adjacencyMatrix1);
-
-            //size2 = 5;
-            //adjacencyMatrix2 = new int[5, 5]
-            //{
-            //    {1,1,0,0,0},
-            //    {1,1,1,0,0},
-            //    {0,1,1,1,0},
-            //    {0,0,1,1,1},
-            //    {0,0,0,1,1},
-            //};
-            //G2 = new Graph(size2, adjacencyMatrix2);
-
-            //subgraphVertices1 = new List<Vertex>();
-            //subgraphVertices2 = new List<Vertex>();
-
-            //subgraphAdjacencyMatrix1 = new int[5, 5];
-            //subgraphAdjacencyMatrix2 = new int[5, 5];
+            subgraphAdjacencyMatrix1 = new int[5, 5];
+            subgraphAdjacencyMatrix2 = new int[5, 5];
         }
 
         public static int findMaxDegreeForBothGraphs(Graph _g1, Graph _g2)
@@ -411,3 +430,70 @@ namespace ApproximationAlgorithm
         }
     }
 }
+
+////Example 1
+//size1 = 9;
+//adjacencyMatrix1 = new int[9, 9]
+//{
+//    {1,1,0,0,1,0,0,0,0},
+//    {1,1,1,0,1,0,0,0,0},
+//    {0,1,1,1,0,0,0,0,0},
+//    {0,0,1,1,1,0,0,0,0},
+//    {1,1,0,1,1,1,0,0,0},
+//    {0,0,0,0,1,1,1,0,1},
+//    {0,0,0,0,0,1,1,1,1},
+//    {0,0,0,0,0,0,1,1,1},
+//    {0,0,0,0,0,1,1,1,1}
+//};
+//G1 = new Graph(size1, adjacencyMatrix1);
+
+//size2 = 9;
+//adjacencyMatrix2 = new int[9, 9]
+//{
+//    {1,1,0,1,0,0,0,0,0},
+//    {1,1,1,0,0,0,0,0,0},
+//    {0,1,1,0,1,0,0,0,0},
+//    {1,0,0,1,1,0,0,0,0},
+//    {0,0,1,1,1,1,0,0,0},
+//    {0,0,0,0,1,1,1,1,1},
+//    {0,0,0,0,0,1,1,1,0},
+//    {0,0,0,0,0,1,1,1,1},
+//    {0,0,0,0,0,1,0,1,1}
+//};
+//G2 = new Graph(size2, adjacencyMatrix2);
+
+//subgraphVertices1 = new List<Vertex>();
+//subgraphVertices2 = new List<Vertex>();
+
+//subgraphAdjacencyMatrix1 = new int[9, 9];
+//subgraphAdjacencyMatrix2 = new int[9, 9];
+
+
+//Example 2
+//size1 = 5;
+//adjacencyMatrix1 = new int[5, 5]
+//{
+//    {1,1,0,0,0},
+//    {1,1,1,0,0},
+//    {0,1,1,1,1},
+//    {0,0,1,1,1},
+//    {0,0,1,1,1},
+//};
+//G1 = new Graph(size1, adjacencyMatrix1);
+
+//size2 = 5;
+//adjacencyMatrix2 = new int[5, 5]
+//{
+//    {1,1,0,0,0},
+//    {1,1,1,0,0},
+//    {0,1,1,1,0},
+//    {0,0,1,1,1},
+//    {0,0,0,1,1},
+//};
+//G2 = new Graph(size2, adjacencyMatrix2);
+
+//subgraphVertices1 = new List<Vertex>();
+//subgraphVertices2 = new List<Vertex>();
+
+//subgraphAdjacencyMatrix1 = new int[5, 5];
+//subgraphAdjacencyMatrix2 = new int[5, 5];
