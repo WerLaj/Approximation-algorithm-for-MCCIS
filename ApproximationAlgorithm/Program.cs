@@ -9,6 +9,11 @@ namespace ApproximationAlgorithm
 {
     public class Program
     {
+        public static string filepath = "C:/Users/werka/Desktop/Algorithms/";
+        public static string importFilename1 = "test_graph1.csv";
+        public static string importFilename2 = "test_graph2.csv";
+        public static string exportFilename1 = "result_graph1.csv";
+        public static string exportFilename2 = "result_graph2.csv";
         public static int size1;
         public static int[,] adjacencyMatrix1;
         public static Graph G1;
@@ -56,9 +61,82 @@ namespace ApproximationAlgorithm
                 algorithm(maxDegree, iterations);
             }
 
+            var paths = getMaxSubgraph();
+
+            List<Vertex> maxPath1 = paths.Item1;
+            List<Vertex> maxPath2 = paths.Item2;
+
+            Console.WriteLine("------------RESULT-------------");
+            Console.WriteLine("Max subgraph in G1:");
+            printListofVertices(maxPath1);
+            Console.WriteLine("Max subgraph in G2:");
+            printListofVertices(maxPath2);
+
+            int[,] subAdjMatrix1 = createAdjacencyMatrixForSubgraph(G1.adjacencyMatrix, maxPath1);
+            int[,] subAdjMatrix2 = createAdjacencyMatrixForSubgraph(G2.adjacencyMatrix, maxPath2);
+            Console.WriteLine("Max subgraph matrix in G1:");
+            printMatrix(subAdjMatrix1, subAdjMatrix1.GetLength(0), subAdjMatrix1.GetLength(1));
+            Console.WriteLine("Max subgraph matrix in G2:");
+            printMatrix(subAdjMatrix2, subAdjMatrix2.GetLength(0), subAdjMatrix2.GetLength(1));
+
+            saveMatrixToCSV(subAdjMatrix1, filepath + exportFilename1);
+            saveMatrixToCSV(subAdjMatrix2, filepath + exportFilename2);
+
             Console.ReadKey();
         }
 
+        public static Tuple<List<Vertex>, List<Vertex>> getMaxSubgraph()
+        {
+            List<Vertex> path1 = new List<Vertex>();
+            List<Vertex> path2 = new List<Vertex>();
+            int maxId = 0;
+            int maxDeg = 0;
+
+            foreach(var list in pathsFromVertexWithMaxDegreeList1)
+            {
+                if (list.Count() > maxDeg)
+                {
+                    maxId = pathsFromVertexWithMaxDegreeList1.IndexOf(list);
+                    maxDeg = list.Count();
+                }
+            }
+
+            path1 = pathsFromVertexWithMaxDegreeList1.ElementAt(maxId);
+            path2 = pathsFromVertexWithMaxDegreeList2.ElementAt(maxId);
+
+            return Tuple.Create(path1, path2);
+        }
+
+        public static int[,] createAdjacencyMatrixForSubgraph(int[,] graph, List<Vertex> subgraph)
+        {
+            int[,] matrix = new int[graph.GetLength(0), graph.GetLength(1)];
+
+            for (int i = 0; i < graph.GetLength(0); i++)
+            {
+                for (int j = 0; j < graph.GetLength(1); j++)
+                {
+                    if (subgraph.Exists(v => v.id == i) && subgraph.Exists(v => v.id == j))
+                    {
+                        matrix[i, j] = graph[i, j];
+                    }
+                    else
+                    {
+                        matrix[i, j] = 0;
+                    }
+                }
+            }
+
+            return matrix;
+        }
+
+        private static void saveMatrixToCSV(int[,] matrix, string path)
+        {
+            var enumerator = matrix.Cast<int>()
+                            .Select((s, i) => (i + 1) % matrix.GetLength(0) == 0 ? string.Concat(s, Environment.NewLine) : string.Concat(s, ","));
+
+            var item = String.Join("", enumerator.ToArray<string>());
+            File.WriteAllText(path, item);
+        }
 
         private static int[,] getMultidimFromJaggedArray(int[][] jaggedArray)
         {
@@ -136,8 +214,8 @@ namespace ApproximationAlgorithm
 
         public static void graphsInititalization()
         {
-            adjacencyMatrix1 = getGraphFromCsv("C:/Users/werka/Desktop/Algorithms/test_graph1.csv");
-            adjacencyMatrix2 = getGraphFromCsv("C:/Users/werka/Desktop/Algorithms/test_graph2.csv");
+            adjacencyMatrix1 = getGraphFromCsv(filepath + importFilename1);
+            adjacencyMatrix2 = getGraphFromCsv(filepath + importFilename2);
             G1 = new Graph(adjacencyMatrix1.GetLength(0), adjacencyMatrix1);
             G2 = new Graph(adjacencyMatrix2.GetLength(0), adjacencyMatrix2);
             subgraphVertices1 = new List<Vertex>();
@@ -193,7 +271,7 @@ namespace ApproximationAlgorithm
             {
                 for (int j = 0; j < d2; j++)
                 {
-                    Console.Write(m[i, j]);
+                    Console.Write(m[i, j] + " ");
                 }
                 Console.WriteLine();
             }
