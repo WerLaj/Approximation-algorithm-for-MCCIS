@@ -10,8 +10,8 @@ namespace ApproximationAlgorithm
     public class Program
     {
         public static string filepath = "C:/Users/werka/Desktop/Algorithms/";
-        public static string importFilename1 = "test_graph1.csv";
-        public static string importFilename2 = "test_graph2.csv";
+        public static string importFilename1 = "8_8_A_Haraburda.csv";
+        public static string importFilename2 = "8_8_B_Haraburda.csv";
         public static string exportFilename1 = "result_graph1.csv";
         public static string exportFilename2 = "result_graph2.csv";
         public static int size1;
@@ -37,6 +37,8 @@ namespace ApproximationAlgorithm
         public static List<List<Vertex>> pathsFromVertexWithMaxDegreeList1 = new List<List<Vertex>>();
         public static List<List<Vertex>> pathsFromVertexWithMaxDegreeList2 = new List<List<Vertex>>();
         public static int iterations;
+        public static List<Vertex> maxPath1 = new List<Vertex>();
+        public static List<Vertex> maxPath2 = new List<Vertex>();
 
         public static void Main(string[] args)
         {
@@ -46,25 +48,33 @@ namespace ApproximationAlgorithm
             maxDegG1 = G1.findVertexWithMaxDegree();
             maxDegG2 = G2.findVertexWithMaxDegree();
 
-            Console.WriteLine("Max degree in G1: id:" + maxDegG1.id + ", deg:" + maxDegG1.degree);
-            Console.WriteLine("Max degree in G2: id:" + maxDegG2.id + ", deg:" + maxDegG2.degree);
+            //Console.WriteLine("Max degree in G1: id:" + maxDegG1.id + ", deg:" + maxDegG1.degree);
+            //Console.WriteLine("Max degree in G2: id:" + maxDegG2.id + ", deg:" + maxDegG2.degree);
 
             maxDegree = findMaxDegreeForBothGraphs(G1, G2);
-            Console.WriteLine("Max degree in both: " + maxDegree);
+            //Console.WriteLine("Max degree in both: " + maxDegree);
 
             currentDegree = maxDegree;
             iterations = maxDegree;
 
-            while (iterations > 0)
+            if(iterations == 0)
             {
-                iterations--;
-                algorithm(maxDegree, iterations);
+                maxPath1.Add(G1.degreesList.First());
+                maxPath2.Add(G2.degreesList.First());
             }
+            else
+            {
+                while (iterations > 0)
+                {
+                    iterations--;
+                    algorithm(maxDegree, iterations);
+                }
 
-            var paths = getMaxSubgraph();
+                var paths = getMaxSubgraph();
 
-            List<Vertex> maxPath1 = paths.Item1;
-            List<Vertex> maxPath2 = paths.Item2;
+                maxPath1 = paths.Item1;
+                maxPath2 = paths.Item2;
+            }
 
             Console.WriteLine("------------RESULT-------------");
             Console.WriteLine("Max subgraph in G1:");
@@ -100,9 +110,11 @@ namespace ApproximationAlgorithm
                     maxDeg = list.Count();
                 }
             }
-
-            path1 = pathsFromVertexWithMaxDegreeList1.ElementAt(maxId);
-            path2 = pathsFromVertexWithMaxDegreeList2.ElementAt(maxId);
+            if(pathsFromVertexWithMaxDegreeList1.Count() != 0)
+            {
+                path1 = pathsFromVertexWithMaxDegreeList1.ElementAt(maxId);
+                path2 = pathsFromVertexWithMaxDegreeList2.ElementAt(maxId);
+            }
 
             return Tuple.Create(path1, path2);
         }
@@ -239,7 +251,7 @@ namespace ApproximationAlgorithm
             {
                 if (max1.degree > max2.degree)
                 {
-                    while (_g1.degreesList.ElementAt(i).degree > max2.degree)
+                    while (_g1.degreesList.ElementAt(i).degree > max2.degree && i < _g1.numberOfVertices - 1 && i < _g2.numberOfVertices - 1)
                     {
                         i++;
                     }
@@ -247,7 +259,7 @@ namespace ApproximationAlgorithm
                 }
                 else
                 {
-                    while (_g1.degreesList.ElementAt(i).degree < max2.degree)
+                    while (_g1.degreesList.ElementAt(i).degree < max2.degree && i < _g1.numberOfVertices - 1 && i < _g2.numberOfVertices - 1)
                     {
                         i++;
                     }
@@ -349,10 +361,10 @@ namespace ApproximationAlgorithm
             head2 = G2.degreesList.Find(vertex => vertex.degree == maxdeg);
             subgraphVertices2.Add(head2);
 
-            Console.WriteLine("Subgraph vertices 1:");
-            printListofVertices(subgraphVertices1);
-            Console.WriteLine("Subgraph vertices 2:");
-            printListofVertices(subgraphVertices2);
+            //Console.WriteLine("Subgraph vertices 1:");
+            //printListofVertices(subgraphVertices1);
+            //Console.WriteLine("Subgraph vertices 2:");
+            //printListofVertices(subgraphVertices2);
 
             while (currentdeg > 0)
             {
@@ -362,18 +374,18 @@ namespace ApproximationAlgorithm
 
                     if (currentdeg != 0)
                     {
-                        Console.WriteLine("Neighbours 1: deg" + currentdeg);
-                        printListofVertices(currentNeighbours1);
-                        Console.WriteLine("Neighbours 2: deg" + currentdeg);
-                        printListofVertices(currentNeighbours2);
+                        //Console.WriteLine("Neighbours 1: deg" + currentdeg);
+                        //printListofVertices(currentNeighbours1);
+                        //Console.WriteLine("Neighbours 2: deg" + currentdeg);
+                        //printListofVertices(currentNeighbours2);
 
                         subgraphVertices1.Add(currentNeighbours1.ElementAt(0));
                         subgraphVertices2.Add(currentNeighbours2.ElementAt(0));
 
-                        Console.WriteLine("Subgraph vertices 1:");
-                        printListofVertices(subgraphVertices1);
-                        Console.WriteLine("Subgraph vertices 2:");
-                        printListofVertices(subgraphVertices2);
+                        //Console.WriteLine("Subgraph vertices 1:");
+                        //printListofVertices(subgraphVertices1);
+                        //Console.WriteLine("Subgraph vertices 2:");
+                        //printListofVertices(subgraphVertices2);
                     }
                 }
                 else
@@ -382,22 +394,22 @@ namespace ApproximationAlgorithm
 
                     if (currentdeg != 0)
                     {
-                        Console.WriteLine("Neighbours 1: deg" + currentdeg);
-                        printListofVertices(currentNeighbours1);
-                        Console.WriteLine("Neighbours 2: deg" + currentdeg);
-                        printListofVertices(currentNeighbours2);
+                        //Console.WriteLine("Neighbours 1: deg" + currentdeg);
+                        //printListofVertices(currentNeighbours1);
+                        //Console.WriteLine("Neighbours 2: deg" + currentdeg);
+                        //printListofVertices(currentNeighbours2);
 
                         cyclesMatrix1 = createCyclesMatrix(G1, subgraphVertices1, currentNeighbours1);
-                        Console.WriteLine("Cycles 1:");
-                        printMatrix(cyclesMatrix1, currentNeighbours1.Count(), subgraphVertices1.Count - 1);
+                        //Console.WriteLine("Cycles 1:");
+                        //printMatrix(cyclesMatrix1, currentNeighbours1.Count(), subgraphVertices1.Count - 1);
                         cyclesMatrix2 = createCyclesMatrix(G2, subgraphVertices2, currentNeighbours2);
-                        Console.WriteLine("Cycles 2:");
-                        printMatrix(cyclesMatrix2, currentNeighbours2.Count(), subgraphVertices2.Count - 1);
+                        //Console.WriteLine("Cycles 2:");
+                        //printMatrix(cyclesMatrix2, currentNeighbours2.Count(), subgraphVertices2.Count - 1);
 
-                        Console.WriteLine("Subgraph vertices 1:");
-                        printListofVertices(subgraphVertices1);
-                        Console.WriteLine("Subgraph vertices 2:");
-                        printListofVertices(subgraphVertices2);
+                        //Console.WriteLine("Subgraph vertices 1:");
+                        //printListofVertices(subgraphVertices1);
+                        //Console.WriteLine("Subgraph vertices 2:");
+                        //printListofVertices(subgraphVertices2);
 
                         bool found = findVerticesWithTheSameNumberOfCycles(subgraphVertices1, subgraphVertices2, currentNeighbours1, currentNeighbours2, cyclesMatrix1, cyclesMatrix2);
 
@@ -405,13 +417,13 @@ namespace ApproximationAlgorithm
                         {
                             currentdeg--;
                             //currentDegree = currentdeg;
-                            Console.WriteLine("Cycles fit - not found");
+                            //Console.WriteLine("Cycles fit - not found");
                         }
 
-                        Console.WriteLine("Subgraph vertices 1:");
-                        printListofVertices(subgraphVertices1);
-                        Console.WriteLine("Subgraph vertices 2:");
-                        printListofVertices(subgraphVertices2);
+                        //Console.WriteLine("Subgraph vertices 1:");
+                        //printListofVertices(subgraphVertices1);
+                        //Console.WriteLine("Subgraph vertices 2:");
+                        //printListofVertices(subgraphVertices2);
                     }
                 }
             }
@@ -419,19 +431,19 @@ namespace ApproximationAlgorithm
             pathsFromVertexWithMaxDegreeList1.Add(copyOfSubgraph(subgraphVertices1));
             pathsFromVertexWithMaxDegreeList2.Add(copyOfSubgraph(subgraphVertices2));
 
-            Console.WriteLine("All paths 1:");
-            foreach (List<Vertex> l in pathsFromVertexWithMaxDegreeList1)
-            {
-                printListofVertices(l);
-                Console.WriteLine("------------------------");
-            }
-            Console.WriteLine("All paths 2:");
-            foreach (List<Vertex> l in pathsFromVertexWithMaxDegreeList2)
-            {
-                printListofVertices(l);
-                Console.WriteLine("------------------------");
-            }
-            Console.WriteLine("--------------BACKTRACKING------------");
+            //Console.WriteLine("All paths 1:");
+            //foreach (List<Vertex> l in pathsFromVertexWithMaxDegreeList1)
+            //{
+            //    printListofVertices(l);
+            //    Console.WriteLine("------------------------");
+            //}
+            //Console.WriteLine("All paths 2:");
+            //foreach (List<Vertex> l in pathsFromVertexWithMaxDegreeList2)
+            //{
+            //    printListofVertices(l);
+            //    Console.WriteLine("------------------------");
+            //}
+            //Console.WriteLine("--------------BACKTRACKING------------");
             subgraphVertices1.Clear();
             subgraphVertices2.Clear();
             currentNeighbours1.Clear();
