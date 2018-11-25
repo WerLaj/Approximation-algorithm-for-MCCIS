@@ -9,11 +9,11 @@ namespace ApproximationAlgorithm
 {
     public class Program
     {
-        public static string filepath = "C:/Users/werka/Desktop/Algorithms/";
-        public static string importFilename1 = "8_8_A_Haraburda.csv";
-        public static string importFilename2 = "8_8_B_Haraburda.csv";
-        public static string exportFilename1 = "result_graph1.csv";
-        public static string exportFilename2 = "result_graph2.csv";
+        public static string filepath = "C:/Users/werka/Desktop/Algorithms/examples_densities/";
+        public static string importFilename1 = "example_12_0.3_A.csv";
+        public static string importFilename2 = "example_20_0.3_B.csv";
+        public static string exportFilename1 = "results/result_graph1.csv";
+        public static string exportFilename2 = "results/result_graph2.csv";
         public static int size1;
         public static int[,] adjacencyMatrix1;
         public static Graph G1;
@@ -51,8 +51,9 @@ namespace ApproximationAlgorithm
             //Console.WriteLine("Max degree in G1: id:" + maxDegG1.id + ", deg:" + maxDegG1.degree);
             //Console.WriteLine("Max degree in G2: id:" + maxDegG2.id + ", deg:" + maxDegG2.degree);
 
+            DateTime begining = DateTime.Now;
             maxDegree = findMaxDegreeForBothGraphs(G1, G2);
-            //Console.WriteLine("Max degree in both: " + maxDegree);
+            Console.WriteLine("Max degree in both: " + maxDegree);
 
             currentDegree = maxDegree;
             iterations = maxDegree;
@@ -76,14 +77,24 @@ namespace ApproximationAlgorithm
                 maxPath2 = paths.Item2;
             }
 
+            DateTime finish = DateTime.Now;
+            Console.WriteLine("Start: " + begining);
+            Console.WriteLine("End: " + finish);
+            Console.WriteLine("Total time: " + (finish - begining));
+
+
             Console.WriteLine("------------RESULT-------------");
             Console.WriteLine("Max subgraph in G1:");
             printListofVertices(maxPath1);
             Console.WriteLine("Max subgraph in G2:");
             printListofVertices(maxPath2);
 
-            int[,] subAdjMatrix1 = createAdjacencyMatrixForSubgraph(G1.adjacencyMatrix, maxPath1);
-            int[,] subAdjMatrix2 = createAdjacencyMatrixForSubgraph(G2.adjacencyMatrix, maxPath2);
+            int[,] subAdjMatrix1 = new int[G1.numberOfVertices,G1.numberOfVertices];
+            int[,] subAdjMatrix2 = new int[G2.numberOfVertices, G2.numberOfVertices];
+            if (maxPath1.Count > 0 && maxPath1.First() != null)
+                subAdjMatrix1 = createAdjacencyMatrixForSubgraph(G1.adjacencyMatrix, maxPath1);
+            if (maxPath2.Count > 0 && maxPath2.First() != null)
+                subAdjMatrix2 = createAdjacencyMatrixForSubgraph(G2.adjacencyMatrix, maxPath2);
             Console.WriteLine("Max subgraph matrix in G1:");
             printMatrix(subAdjMatrix1, subAdjMatrix1.GetLength(0), subAdjMatrix1.GetLength(1));
             Console.WriteLine("Max subgraph matrix in G2:");
@@ -273,7 +284,8 @@ namespace ApproximationAlgorithm
         {
             foreach (Vertex v in list)
             {
-                Console.WriteLine("id: " + v.id + " deg: " + v.degree);
+                if(v != null)
+                    Console.WriteLine("id: " + v.id + " deg: " + v.degree);
             }
         }
 
