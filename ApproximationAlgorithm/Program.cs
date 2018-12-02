@@ -10,8 +10,8 @@ namespace ApproximationAlgorithm
     public class Program
     {
         public static string filepath = "C:/Users/werka/Desktop/Algorithms/examples_densities/";
-        public static string importFilename1 = "example_12_0.3_A.csv";
-        public static string importFilename2 = "example_20_0.3_B.csv";
+        public static string importFilename1 = "example_25_0.5_A.csv";
+        public static string importFilename2 = "example_25_0.5_B.csv";
         public static string exportFilename1 = "results/result_graph1.csv";
         public static string exportFilename2 = "results/result_graph2.csv";
         public static int size1;
@@ -51,9 +51,10 @@ namespace ApproximationAlgorithm
             //Console.WriteLine("Max degree in G1: id:" + maxDegG1.id + ", deg:" + maxDegG1.degree);
             //Console.WriteLine("Max degree in G2: id:" + maxDegG2.id + ", deg:" + maxDegG2.degree);
 
-            DateTime begining = DateTime.Now;
+            //DateTime begining = DateTime.Now;
+            var watch = System.Diagnostics.Stopwatch.StartNew();
             maxDegree = findMaxDegreeForBothGraphs(G1, G2);
-            Console.WriteLine("Max degree in both: " + maxDegree);
+            //Console.WriteLine("Max degree in both: " + maxDegree);
 
             currentDegree = maxDegree;
             iterations = maxDegree;
@@ -77,11 +78,13 @@ namespace ApproximationAlgorithm
                 maxPath2 = paths.Item2;
             }
 
-            DateTime finish = DateTime.Now;
-            Console.WriteLine("Start: " + begining);
-            Console.WriteLine("End: " + finish);
-            Console.WriteLine("Total time: " + (finish - begining));
-
+            //DateTime finish = DateTime.Now;
+            //Console.WriteLine("Start: " + begining);
+            // Console.WriteLine("End: " + finish);
+            //Console.WriteLine("Total time: " + (finish - begining));
+            watch.Stop();
+            var elapsedMs = watch.ElapsedMilliseconds;
+            Console.WriteLine("Total time: " + elapsedMs);
 
             Console.WriteLine("------------RESULT-------------");
             Console.WriteLine("Max subgraph in G1:");
@@ -315,6 +318,7 @@ namespace ApproximationAlgorithm
                 nb2 = g2.findNeighbours(v2, currentDeg, head2.id);
             }
 
+            currentDeg--;
             currentNeighbours1 = nb1;
             currentNeighbours2 = nb2;
 
@@ -366,11 +370,44 @@ namespace ApproximationAlgorithm
             return found;
         }
 
+        public static Vertex findVertexWithDegreeNotOnTheList(int deg, List<Vertex> list, List<Vertex> vertices)
+        {
+            Vertex vertex = null;
+            foreach(var v in vertices)
+            {
+                if (v.degree == deg && !list.Contains(v))
+                    return v;
+            }
+
+            return vertex;
+        }
+
         public static void algorithm(int maxdeg, int currentdeg)
         {
-            head1 = G1.degreesList.Find(vertex => vertex.degree == maxdeg);
+            //head1 = G1.degreesList.Find(vertex => vertex.degree == maxdeg);
+            head1 = findVertexWithDegreeNotOnTheList(maxdeg, subgraphVertices1, G1.degreesList);
+            if (head1 == null)
+            {
+                subgraphVertices1.Clear();
+                subgraphVertices2.Clear();
+                currentNeighbours1.Clear();
+                currentNeighbours2.Clear();
+                currentDegree = maxDegree;
+                return;
+            }
+
+            head2 = findVertexWithDegreeNotOnTheList(maxdeg, subgraphVertices2, G2.degreesList);
+            if (head2 == null)
+            {
+                subgraphVertices1.Clear();
+                subgraphVertices2.Clear();
+                currentNeighbours1.Clear();
+                currentNeighbours2.Clear();
+                currentDegree = maxDegree;
+                return;
+            }
+
             subgraphVertices1.Add(head1);
-            head2 = G2.degreesList.Find(vertex => vertex.degree == maxdeg);
             subgraphVertices2.Add(head2);
 
             //Console.WriteLine("Subgraph vertices 1:");
@@ -384,7 +421,7 @@ namespace ApproximationAlgorithm
                 {
                     currentdeg = findMaxCurrentDegreeForNeighbours(G1, G2, subgraphVertices1.Last(), subgraphVertices2.Last(), currentdeg);
 
-                    if (currentdeg != 0)
+                    if (currentdeg > 0)
                     {
                         //Console.WriteLine("Neighbours 1: deg" + currentdeg);
                         //printListofVertices(currentNeighbours1);
@@ -428,7 +465,7 @@ namespace ApproximationAlgorithm
                         if (found == false)
                         {
                             currentdeg--;
-                            //currentDegree = currentdeg;
+                            currentDegree = currentdeg;
                             //Console.WriteLine("Cycles fit - not found");
                         }
 
@@ -455,7 +492,7 @@ namespace ApproximationAlgorithm
             //    printListofVertices(l);
             //    Console.WriteLine("------------------------");
             //}
-            //Console.WriteLine("--------------BACKTRACKING------------");
+            //Console.WriteLine("-----------------------ITERATION FINISHED---------------------");
             subgraphVertices1.Clear();
             subgraphVertices2.Clear();
             currentNeighbours1.Clear();
